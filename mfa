@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PFG Authentication Portal | MFA Reset</title>
+    <style>
+        :root {
+            --bg: #0d1117; 
+            --surface: #161b22; 
+            --border: #30363d;
+            --text-main: #c9d1d9; 
+            --text-muted: #8b949e;
+            --primary: #58a6ff; 
+            --success: #238636; 
+            --danger: #f85149;
+        }
+
+        * { box-sizing: border-box; transition: all 0.3s ease; }
+
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            background: var(--bg); 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            color: var(--text-main); 
+            height: 100vh; 
+            overflow: hidden; 
+        }
+        
+        .app-container { 
+            display: grid; 
+            grid-template-columns: 320px 1fr; 
+            height: 100vh; 
+            padding: 20px; 
+            gap: 20px; 
+        }
+
+        .card { 
+            background: var(--surface); 
+            border: 1px solid var(--border); 
+            border-radius: 12px; 
+            padding: 25px; 
+            display: flex; 
+            flex-direction: column; 
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2); 
+        }
+        
+        /* Left Rail: SOP Progress */
+        .step-pill { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            padding: 12px; 
+            margin-bottom: 8px; 
+            border-radius: 8px; 
+            font-size: 13px; 
+            color: var(--text-muted); 
+            border: 1px solid transparent; 
+        }
+
+        .step-pill.active { 
+            background: #58a6ff15; 
+            border-color: var(--primary); 
+            color: white; 
+        }
+
+        .step-pill.done { 
+            color: var(--success); 
+        }
+
+        .step-num { 
+            width: 22px; 
+            height: 22px; 
+            border-radius: 50%; 
+            border: 1px solid currentColor; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 11px; 
+            flex-shrink: 0; 
+        }
+
+        /* Content Area Stages */
+        .stage-container { 
+            display: none; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100%; 
+            text-align: center; 
+        }
+
+        .stage-container.visible { 
+            display: flex; 
+            animation: fadeIn 0.4s ease; 
+        }
+
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        .input-group { 
+            width: 100%; 
+            max-width: 400px; 
+            text-align: left; 
+            margin: 10px 0; 
+        }
+
+        label { 
+            font-size: 11px; 
+            text-transform: uppercase; 
+            color: var(--text-muted); 
+            font-weight: 700; 
+        }
+
+        input { 
+            width: 100%; 
+            padding: 12px; 
+            background: #0d1117; 
+            border: 1px solid var(--border); 
+            border-radius: 6px; 
+            color: white; 
+            margin-top: 5px; 
+            font-size: 14px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn { 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            padding: 12px 30px; 
+            border-radius: 6px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            margin-top: 20px; 
+        }
+
+        .btn:hover { 
+            filter: brightness(1.1); 
+        }
+
+        .btn-disabled {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        /* QR Code Styling */
+        .qr-wrapper {
+            background: white; 
+            padding: 15px; 
+            margin: 25px; 
+            border-radius: 12px; 
+            box-shadow: 0 0 20px rgba(88, 166, 255, 0.15);
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="card">
+        <h2 style="font-size: 16px; margin-bottom: 25px; color: var(--primary); letter-spacing: 0.5px;">MFA RESET PROTOCOL</h2>
+        <div id="step1" class="step-pill active"><div class="step-num">1</div> Identity Verification</div>
+        <div id="step2" class="step-pill"><div class="step-num">2</div> Clear Old Methods</div>
+        <div id="step3" class="step-pill"><div class="step-num">3</div> Pair New Authenticator</div>
+        <div id="step4" class="step-pill"><div class="step-num">4</div> Save Recovery Codes</div>
+    </div>
+
+    <div class="card">
+        
+        <div id="stage1" class="stage-container visible">
+            <h1 style="margin: 0 0 10px;">Identity Verification</h1>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 30px;">Step 1: Ensure identity is verified by IT Service Desk.</p>
+            <div class="input-group">
+                <label>Employee ID</label>
+                <input type="text" id="empId" placeholder="e.g. #QXGY8092">
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="ssn" placeholder="********">
+            </div>
+            <button class="btn" onclick="goToStage(2)">Verify & Continue</button>
+        </div>
+
+        <div id="stage2" class="stage-container">
+            <h1 style="margin: 0 0 10px;">Security Info</h1>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Step 3: Delete existing devices before adding new methods.</p>
+            <div id="device-card" style="background: #0d1117; width: 100%; max-width: 400px; padding: 20px; border-radius: 8px; border: 1px solid var(--danger); margin: 10px 0;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="text-align: left;">
+                        <span style="font-weight: bold; display: block; color: white;">iPhone 14 Pro</span>
+                        <span style="font-size: 11px; color: var(--text-muted);">Last used: 2 hours ago</span>
+                    </div>
+                    <button style="background: var(--danger); border: none; color: white; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold;" onclick="clearMethod()">Delete</button>
+                </div>
+            </div>
+            <button id="next2" class="btn btn-disabled" onclick="goToStage(3)">Add Method</button>
+        </div>
+
+        <div id="stage3" class="stage-container">
+            <h1>Scan QR Code</h1>
+            <p style="color: var(--text-muted); font-size: 14px;">Step 5: Open authenticator app and scan the secure token below.</p>
+            
+            <div class="qr-wrapper">
+                <svg width="150" height="150" viewBox="0 0 29 29" style="display: block; shape-rendering: crispEdges;">
+                    <path fill="#000" d="M0 0h7v7H0zM22 0h7v7h-7zM0 22h7v7H0zM2 2h3v3H2zM24 2h3v3h-3zM2 24h3v3H2zM10 0h2v1h-2zM13 0h1v2h-1zM15 0h1v1h-1zM17 0h4v1h-4zM10 2h1v1h-1zM12 2h2v1h-2zM15 2h1v1h-1zM17 2h1v1h-1zM19 2h2v1h-2zM11 3h1v2h-1zM13 3h1v1h-1zM15 3h1v2h-1zM18 3h1v1h-1zM20 3h1v1h-1zM10 5h1v1h-1zM12 5h1v2h-1zM14 5h3v1h-3zM18 5h3v1h-3zM7 7h1v1H7zM9 7h1v1H9zM11 7h2v1h-2zM14 7h2v2h-2zM17 7h1v1h-1zM19 7h2v1h-2zM22 7h1v1h-1zM25 7h1v1h-1zM28 7h1v1h-1zM8 8h1v2H8zM10 8h1v1h-1zM12 8h1v1h-1zM17 8h1v1h-1zM19 8h2v1h-2zM21 8h1v1h-1zM23 8h1v1h-1zM25 8h2v1h-2zM7 9h1v1H7zM11 9h2v1h-2zM15 9h1v1h-1zM18 9h1v2h-1zM20 9h1v1h-1zM22 9h1v1h-1zM24 9h1v1h-1zM26 9h2v1h-2zM9 10h2v1H9zM12 10h1v1h-1zM14 10h1v2h-1zM16 10h1v1h-1zM19 10h1v1h-1zM21 10h2v1h-2zM25 10h2v1h-2zM28 10h1v1h-1zM7 11h2v1H7zM10 11h1v1h-1zM12 11h1v1h-1zM15 11h1v1h-1zM17 11h1v1h-1zM20 11h1v1h-1zM23 11h1v2h-1zM25 11h1v1h-1zM27 11h1v1h-1zM8 12h1v1H8zM10 12h1v1h-1zM12 12h2v1h-2zM16 12h2v1h-2zM19 12h1v1h-1zM21 12h1v1h-1zM26 12h1v1h-1zM28 12h1v1h-1zM0 13h1v1H0zM2 13h1v1H2zM4 13h2v1H4zM7 13h1v1H7zM9 13h1v1H9zM11 13h1v1h-1zM15 13h1v1h-1zM18 13h1v1h-1zM20 13h1v1h-1zM22 13h1v1h-1zM24 13h1v1h-1zM27 13h1v1h-1z"/>
+                </svg>
+            </div>
+
+            <div class="input-group">
+                <label>Step 6: Enter 6-digit code</label>
+                <input type="text" maxlength="6" style="text-align: center; letter-spacing: 10px; font-weight: 800; font-size: 22px; color: var(--primary);" placeholder="------">
+            </div>
+            <button class="btn" onclick="goToStage(4)">Verify & Confirm</button>
+        </div>
+
+        <div id="stage4" class="stage-container">
+            <div style="font-size: 60px; color: var(--success); margin-bottom: 20px;">✓</div>
+            <h1>MFA Linked Successfully</h1>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 30px;">Step 7: Download and store your one-time recovery codes securely.</p>
+            <div style="background: #0d1117; padding: 25px; border: 1px dashed var(--border); font-family: 'Courier New', monospace; color: var(--primary); font-weight: bold; line-height: 1.8; border-radius: 8px;">
+                PFG-RESET-8822-X90Z<br>
+                PFG-RESET-1102-L00Q<br>
+                PFG-RESET-7741-K88P
+            </div>
+            <button class="btn" onclick="location.reload()">Continue</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function goToStage(num) {
+        // Hide all stages
+        document.querySelectorAll('.stage-container').forEach(s => s.classList.remove('visible'));
+        
+        // Update Sidebar Progress
+        document.querySelectorAll('.step-pill').forEach((p, idx) => {
+            p.classList.remove('active');
+            if (idx + 1 < num) {
+                p.classList.add('done');
+            } else {
+                p.classList.remove('done');
+            }
+        });
+        
+        // Show current stage
+        document.getElementById('stage' + num).classList.add('visible');
+        document.getElementById('step' + num).classList.add('active');
+    }
+
+    function clearMethod() {
+        // Hide the old device card
+        document.getElementById('device-card').style.display = 'none';
+        
+        // Enable the "Next" button
+        const btn = document.getElementById('next2');
+        btn.classList.remove('btn-disabled');
+        
+        alert('Action: Old MFA device purged from Security Info.');
+    }
+</script>
+
+</body>
+</html>
